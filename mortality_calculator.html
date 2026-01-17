@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LPNI Calculator</title>
+    <!-- 
+        Copyright © 2026 Guanjie Chen. All rights reserved.
+    -->
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+        }
+        .calculator-container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+        }
+        .page-title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+        .input-group-custom {
+            margin-bottom: 20px;
+        }
+        .input-group-custom label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+        }
+        .input-unit {
+            color: #888;
+            font-size: 14px;
+            font-weight: normal;
+            margin-left: 5px;
+        }
+        .input-group-custom input {
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            padding: 12px;
+            transition: all 0.3s;
+        }
+        .input-group-custom input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .btn-calculate {
+            width: 100%;
+            padding: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            margin-top: 10px;
+            transition: transform 0.2s;
+        }
+        .btn-calculate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-reset {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 8px;
+            background: #6c757d;
+            border: none;
+            color: white;
+            margin-top: 10px;
+        }
+        .btn-reset:hover {
+            background: #5a6268;
+        }
+        .results-container {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+        .results-container.show {
+            display: block;
+        }
+        .result-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .result-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .result-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        .result-value.mortality {
+            color: #dc3545;
+        }
+        .alert-custom {
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h1 class="page-title">LPNI Calculator</h1>
+        
+        <!-- Input Area -->
+        <div class="input-group-custom">
+            <label for="albumin">Albumin <span class="input-unit">(g/L)</span></label>
+            <input type="number" 
+                   id="albumin" 
+                   class="form-control" 
+                   placeholder="Enter albumin value"
+                   step="0.01"
+                   min="0">
+            <div class="invalid-feedback" id="albumin-error"></div>
+        </div>
+
+        <div class="input-group-custom">
+            <label for="lymphocyte">Lymphocyte <span class="input-unit">(×10⁹/L)</span></label>
+            <input type="number" 
+                   id="lymphocyte" 
+                   class="form-control" 
+                   placeholder="Enter lymphocyte value"
+                   step="0.01"
+                   min="0">
+            <div class="invalid-feedback" id="lymphocyte-error"></div>
+        </div>
+
+        <div class="input-group-custom">
+            <label for="lactate">Lactate <span class="input-unit">(mmol/L)</span></label>
+            <input type="number" 
+                   id="lactate" 
+                   class="form-control" 
+                   placeholder="Enter lactate value"
+                   step="0.01"
+                   min="0">
+            <div class="invalid-feedback" id="lactate-error"></div>
+        </div>
+
+        <!-- Action Buttons -->
+        <button class="btn btn-calculate" onclick="calculate()">Calculate</button>
+        <button class="btn btn-reset" onclick="reset()">Reset</button>
+
+        <!-- Error Alert -->
+        <div id="error-alert" class="alert alert-danger alert-custom" style="display: none;"></div>
+
+        <!-- Results Display Area -->
+        <div class="results-container" id="results-container">
+            <h4 style="margin-bottom: 20px; color: #333;">Results</h4>
+            
+            <div class="result-item">
+                <div class="result-label">LPNI Score</div>
+                <div class="result-value" id="total-points">-</div>
+            </div>
+
+            <div class="result-item">
+                <div class="result-label">Risk of mortality</div>
+                <div class="result-value mortality" id="mortality-prob">-</div>
+            </div>
+        </div>
+        
+        <!-- 版权信息 -->
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; color: #666; font-size: 12px;">
+            Copyright © 2026 Guanjie Chen. All rights reserved.
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        /**
+         * Core calculation function
+         * Calculate LPNI Score and mortality risk
+         */
+        function calculate() {
+            // Hide previous error alerts and results
+            document.getElementById('error-alert').style.display = 'none';
+            document.getElementById('results-container').classList.remove('show');
+            
+            // Clear previous error states
+            clearErrors();
+
+            // Get input values
+            const albumin = parseFloat(document.getElementById('albumin').value);
+            const lymphocyte = parseFloat(document.getElementById('lymphocyte').value);
+            const lactate = parseFloat(document.getElementById('lactate').value);
+
+            // Input validation
+            if (isNaN(albumin) || albumin < 0) {
+                showError('albumin', 'Please enter a valid albumin value (≥0)');
+                return;
+            }
+            if (isNaN(lymphocyte) || lymphocyte < 0) {
+                showError('lymphocyte', 'Please enter a valid lymphocyte value (≥0)');
+                return;
+            }
+            if (isNaN(lactate) || lactate < 0) {
+                showError('lactate', 'Please enter a valid lactate value (≥0)');
+                return;
+            }
+
+            // Core formula calculation
+            // Formula ①: total_points = 107.7 - 1.54*Albumin - 7.7*Lymphocyte + 2.9*Lactate
+            const totalPoints = 107.7 - (1.54 * albumin) - (7.7 * lymphocyte) + (2.9 * lactate);
+            
+            // Formula ②: P(mortality=1) = 1/(1+e^(-(total_points-65)/25))
+            // Using Math.E as the natural constant e
+            const exponent = -(totalPoints - 65) / 25;
+            const mortalityProb = 1 / (1 + Math.pow(Math.E, exponent));
+
+            // Display results (rounded to 2 decimal places)
+            document.getElementById('total-points').textContent = totalPoints.toFixed(2);
+            document.getElementById('mortality-prob').textContent = (mortalityProb * 100).toFixed(2) + '%';
+            
+            // Show results container
+            document.getElementById('results-container').classList.add('show');
+        }
+
+        /**
+         * Reset function
+         * Clear all inputs and results
+         */
+        function reset() {
+            // Clear input fields
+            document.getElementById('albumin').value = '';
+            document.getElementById('lymphocyte').value = '';
+            document.getElementById('lactate').value = '';
+            
+            // Hide results and error alerts
+            document.getElementById('results-container').classList.remove('show');
+            document.getElementById('error-alert').style.display = 'none';
+            
+            // Clear error states
+            clearErrors();
+        }
+
+        /**
+         * Display input error
+         */
+        function showError(fieldId, message) {
+            const input = document.getElementById(fieldId);
+            input.classList.add('is-invalid');
+            const errorDiv = document.getElementById(fieldId + '-error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        /**
+         * Clear all error states
+         */
+        function clearErrors() {
+            const inputs = ['albumin', 'lymphocyte', 'lactate'];
+            inputs.forEach(id => {
+                const input = document.getElementById(id);
+                input.classList.remove('is-invalid');
+                const errorDiv = document.getElementById(id + '-error');
+                errorDiv.style.display = 'none';
+            });
+        }
+
+        /**
+         * Real-time input validation (only allow numbers and decimal point)
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = ['albumin', 'lymphocyte', 'lactate'];
+            
+            inputs.forEach(id => {
+                const input = document.getElementById(id);
+                
+                // Restrict input to numbers and decimal point
+                input.addEventListener('input', function(e) {
+                    let value = e.target.value;
+                    // Allow numbers, decimal point, and minus sign (but we set min="0" in HTML)
+                    value = value.replace(/[^0-9.]/g, '');
+                    // Ensure only one decimal point
+                    const parts = value.split('.');
+                    if (parts.length > 2) {
+                        value = parts[0] + '.' + parts.slice(1).join('');
+                    }
+                    e.target.value = value;
+                });
+
+                // Enter key triggers calculation
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        calculate();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
