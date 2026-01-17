@@ -166,8 +166,8 @@
             <h4 style="margin-bottom: 20px; color: #333;">Results</h4>
             
             <div class="result-item">
-                <div class="result-label">LPNI Score</div>
-                <div class="result-value" id="total-points">-</div>
+                <div class="result-label">Malnutrition</div>
+                <div class="result-value" id="malnutrition">-</div>
             </div>
 
             <div class="result-item">
@@ -188,7 +188,7 @@
     <script>
         /**
          * Core calculation function
-         * Calculate LPNI Score and mortality risk
+         * Calculate Malnutrition status and mortality risk
          */
         function calculate() {
             // Hide previous error alerts and results
@@ -217,17 +217,21 @@
                 return;
             }
 
-            // Core formula calculation
-            // Formula ①: total_points = 107.7 - 1.54*Albumin - 7.7*Lymphocyte + 2.9*Lactate
-            const totalPoints = 107.7 - (1.54 * albumin) - (7.7 * lymphocyte) + (2.9 * lactate);
+            // Calculate PNI: PNI = albumin + 5*Lymphocyte
+            const pni = albumin + (5 * lymphocyte);
             
-            // Formula ②: P(mortality=1) = 1/(1+e^(-(total_points-65)/25))
+            // Determine Malnutrition status
+            // If PNI <= 36.65, then Malnutrition is Yes, otherwise No
+            const malnutrition = pni <= 36.65 ? 'Yes' : 'No';
+            
+            // Calculate mortality probability
+            // Formula: P(mortality = 1) = 1 / (1 + exp(-(1.8999 - 0.1166 × PNI + 0.3269 × Lactate)))
             // Using Math.E as the natural constant e
-            const exponent = -(totalPoints - 65) / 25;
+            const exponent = -(1.8999 - (0.1166 * pni) + (0.3269 * lactate));
             const mortalityProb = 1 / (1 + Math.pow(Math.E, exponent));
 
-            // Display results (rounded to 2 decimal places)
-            document.getElementById('total-points').textContent = totalPoints.toFixed(2);
+            // Display results
+            document.getElementById('malnutrition').textContent = malnutrition;
             document.getElementById('mortality-prob').textContent = (mortalityProb * 100).toFixed(2) + '%';
             
             // Show results container
