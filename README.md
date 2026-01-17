@@ -1,13 +1,13 @@
-# 死亡概率计算器 - 使用说明
+# LPNI Calculator - 使用说明
 
 ## 📋 项目简介
 
-这是一个轻量级网页应用，用于计算医疗相关的总评分和死亡概率。应用采用纯前端技术实现，无需后端服务器，可直接在浏览器中运行。
+这是一个轻量级网页应用，用于计算营养不良状态（Malnutrition）和死亡风险概率。应用采用纯前端技术实现，无需后端服务器，可直接在浏览器中运行。
 
 ## 🚀 如何运行
 
 ### 方法一：直接打开（推荐）
-1. 找到项目目录中的 `index.html` 文件
+1. 找到项目目录中的 `mortality_calculator.html` 文件
 2. 双击该文件，系统会自动使用默认浏览器打开
 3. 或者右键点击文件，选择"打开方式" → 选择任意浏览器（Chrome、Edge、Firefox等）
 
@@ -36,18 +36,19 @@ http-server
 ## 📝 使用说明
 
 1. **输入数值**：在三个输入框中分别输入：
-   - 白蛋白 (Albumin)
-   - 淋巴细胞 (Lymphocyte)
-   - 乳酸 (Lactate)
+   - 白蛋白 (Albumin) - 单位：g/L
+   - 淋巴细胞 (Lymphocyte) - 单位：×10⁹/L
+   - 乳酸 (Lactate) - 单位：mmol/L
 
-2. **计算**：点击"计算"按钮，系统会自动计算并显示：
-   - 总评分 (LPNI Score)
-   - 死亡概率 (Risk of mortality)
+2. **计算**：点击"Calculate"按钮，系统会自动计算并显示：
+   - **Malnutrition（营养不良状态）**：根据 PNI 值判断，显示 "Yes" 或 "No"
+   - **Risk of mortality（死亡风险）**：显示死亡概率百分比
 
-3. **重置**：点击"重置"按钮可清空所有输入和结果
+3. **重置**：点击"Reset"按钮可清空所有输入和结果
 
 4. **输入验证**：
    - 仅允许输入数字（包括小数）
+   - 支持小数点后最多2位
    - 数值必须 ≥ 0
    - 输入无效时会显示错误提示
 
@@ -55,55 +56,70 @@ http-server
 
 如果需要调整计算公式中的系数，可以编辑 `mortality_calculator.html` 文件中的 JavaScript 代码部分。
 
-### 修改总评分公式
+### 修改 PNI 计算公式
 
-找到以下代码（约第 150 行）：
+找到以下代码（约第 220 行）：
 ```javascript
-// 公式①: total_points = 107.7 - 1.54*Albumin - 7.7*Lymphocyte + 2.9*Lactate
-const totalPoints = 107.7 - (1.54 * albumin) - (7.7 * lymphocyte) + (2.9 * lactate);
+// Calculate PNI: PNI = albumin + 5*Lymphocyte
+const pni = albumin + (5 * lymphocyte);
 ```
 
 **参数说明：**
-- `107.7`：常数项
-- `1.54`：白蛋白系数（负号表示减去）
-- `7.7`：淋巴细胞系数（负号表示减去）
-- `2.9`：乳酸系数（正号表示加上）
+- `5`：淋巴细胞的系数
 
 **修改示例：**
-如果要将白蛋白系数改为 1.5，淋巴细胞系数改为 8.0，乳酸系数改为 3.0，常数项改为 100：
+如果要将淋巴细胞系数改为 4.5：
 ```javascript
-const totalPoints = 100 - (1.5 * albumin) - (8.0 * lymphocyte) + (3.0 * lactate);
+const pni = albumin + (4.5 * lymphocyte);
+```
+
+### 修改营养不良判断阈值
+
+找到以下代码（约第 225 行）：
+```javascript
+// If PNI <= 36.65, then Malnutrition is Yes, otherwise No
+const malnutrition = pni <= 36.65 ? 'Yes' : 'No';
+```
+
+**参数说明：**
+- `36.65`：营养不良判断的阈值
+
+**修改示例：**
+如果要将阈值改为 40：
+```javascript
+const malnutrition = pni <= 40 ? 'Yes' : 'No';
 ```
 
 ### 修改死亡概率公式
 
-找到以下代码（约第 155 行）：
+找到以下代码（约第 230 行）：
 ```javascript
-// 公式②: P(mortality=1) = 1/(1+e^(-(total_points-65)/25))
-const exponent = -(totalPoints - 65) / 25;
+// Formula: P(mortality = 1) = 1 / (1 + exp(-(1.8999 - 0.1166 × PNI + 0.3269 × Lactate)))
+const exponent = -(1.8999 - (0.1166 * pni) + (0.3269 * lactate));
 const mortalityProb = 1 / (1 + Math.pow(Math.E, exponent));
 ```
 
 **参数说明：**
-- `65`：偏移量（total_points 减去此值）
-- `25`：缩放因子（用于调整曲线的陡峭程度）
+- `1.8999`：常数项
+- `0.1166`：PNI 的系数（负号表示减去）
+- `0.3269`：乳酸的系数（正号表示加上）
 
 **修改示例：**
-如果要将偏移量改为 70，缩放因子改为 20：
+如果要将常数项改为 2.0，PNI 系数改为 0.12，乳酸系数改为 0.35：
 ```javascript
-const exponent = -(totalPoints - 70) / 20;
+const exponent = -(2.0 - (0.12 * pni) + (0.35 * lactate));
 const mortalityProb = 1 / (1 + Math.pow(Math.E, exponent));
 ```
 
 ### 修改小数位数
 
-找到显示结果的代码（约第 160 行）：
+找到显示结果的代码（约第 235 行）：
 ```javascript
-document.getElementById('total-points').textContent = totalPoints.toFixed(2);
+document.getElementById('malnutrition').textContent = malnutrition;
 document.getElementById('mortality-prob').textContent = (mortalityProb * 100).toFixed(2) + '%';
 ```
 
-将 `.toFixed(2)` 中的 `2` 改为其他数字即可改变小数位数：
+将 `.toFixed(2)` 中的 `2` 改为其他数字即可改变死亡概率的小数位数：
 - `.toFixed(0)`：整数
 - `.toFixed(1)`：1位小数
 - `.toFixed(3)`：3位小数
@@ -120,25 +136,36 @@ document.getElementById('mortality-prob').textContent = (mortalityProb * 100).to
 
 ## 📊 计算公式详解
 
-### 公式①：总评分计算
+### 公式①：PNI（预后营养指数）计算
 ```
-total_points = 107.7 - 1.54 × Albumin - 7.7 × Lymphocyte + 2.9 × Lactate
-```
-
-这是一个线性组合公式，通过各项指标的加权求和得到总评分。
-
-### 公式②：死亡概率计算
-```
-P(mortality=1) = 1 / (1 + e^(-(total_points - 65) / 25))
+PNI = Albumin + 5 × Lymphocyte
 ```
 
-这是一个逻辑回归（Logistic Regression）公式，使用 Sigmoid 函数将总评分转换为 0-1 之间的概率值。
+这是一个简单的线性组合公式，用于评估患者的营养状态。
+
+### 公式②：营养不良判断
+```
+Malnutrition = {
+    "Yes"  if PNI ≤ 36.65
+    "No"   if PNI > 36.65
+}
+```
+
+根据 PNI 值判断患者是否存在营养不良：
+- 当 PNI ≤ 36.65 时，判定为营养不良（Malnutrition = Yes）
+- 当 PNI > 36.65 时，判定为无营养不良（Malnutrition = No）
+
+### 公式③：死亡概率计算
+```
+P(mortality = 1) = 1 / (1 + exp(-(1.8999 - 0.1166 × PNI + 0.3269 × Lactate)))
+```
+
+这是一个逻辑回归（Logistic Regression）公式，使用 Sigmoid 函数将 PNI 和乳酸值转换为 0-1 之间的死亡概率值。
 
 **公式特点：**
-- 当 `total_points = 65` 时，死亡概率为 50%
-- 当 `total_points > 65` 时，死亡概率 > 50%
-- 当 `total_points < 65` 时，死亡概率 < 50%
-- 缩放因子 25 控制曲线的陡峭程度（值越小，曲线越陡）
+- PNI 值越高，死亡风险越低（系数为负）
+- 乳酸值越高，死亡风险越高（系数为正）
+- 结果以百分比形式显示（0-100%）
 
 ## 🔍 技术细节
 
@@ -164,6 +191,5 @@ P(mortality=1) = 1 / (1 + e^(-(total_points - 65) / 25))
 **最后更新：** 2026
 
 ---
-
 
 **Copyright © 2026 Guanjie Chen. All rights reserved.**
