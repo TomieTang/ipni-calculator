@@ -7,7 +7,7 @@
 ## 🚀 如何运行
 
 ### 方法一：直接打开（推荐）
-1. 找到项目目录中的 `mortality_calculator.html` 文件
+1. 找到项目目录中的 `index.html` 文件
 2. 双击该文件，系统会自动使用默认浏览器打开
 3. 或者右键点击文件，选择"打开方式" → 选择任意浏览器（Chrome、Edge、Firefox等）
 
@@ -41,8 +41,8 @@ http-server
    - 乳酸 (Lactate)
 
 2. **计算**：点击"计算"按钮，系统会自动计算并显示：
-   - 总评分 (total_points)
-   - 死亡概率 P(mortality=1)
+   - 总评分 (LPNI Score)
+   - 死亡概率 (Risk of mortality)
 
 3. **重置**：点击"重置"按钮可清空所有输入和结果
 
@@ -164,5 +164,6 @@ P(mortality=1) = 1 / (1 + e^(-(total_points - 65) / 25))
 **最后更新：** 2026
 
 ---
+
 
 **Copyright © 2026 Guanjie Chen. All rights reserved.**
