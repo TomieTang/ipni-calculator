@@ -7,7 +7,7 @@
 ## 🚀 如何运行
 
 ### 方法一：直接打开（推荐）
-1. 找到项目目录中的 `mortality_calculator.html` 文件
+1. 找到项目目录中的 `index.html` 文件
 2. 双击该文件，系统会自动使用默认浏览器打开
 3. 或者右键点击文件，选择"打开方式" → 选择任意浏览器（Chrome、Edge、Firefox等）
 
@@ -19,7 +19,7 @@
 # Python 3
 python -m http.server 8000
 
-# 然后在浏览器访问: http://localhost:8000/mortality_calculator.html
+# 然后在浏览器访问: http://localhost:8000/index.html
 ```
 
 **使用 Node.js（如果已安装）：**
@@ -54,7 +54,7 @@ http-server
 
 ## 🔧 如何修改公式参数
 
-如果需要调整计算公式中的系数，可以编辑 `mortality_calculator.html` 文件中的 JavaScript 代码部分。
+如果需要调整计算公式中的系数，可以编辑 `index.html` 文件中的 JavaScript 代码部分。
 
 ### 修改 PNI 计算公式
 
@@ -183,7 +183,7 @@ P(mortality = 1) = 1 / (1 + exp(-(1.8999 - 0.1166 × PNI + 0.3269 × Lactate)))
 
 ## 📞 技术支持
 
-如有问题或需要修改，请直接编辑 `mortality_calculator.html` 文件中的相应代码部分。
+如有问题或需要修改，请直接编辑 `index.html` 文件中的相应代码部分。
 
 ---
 
@@ -193,3 +193,4 @@ P(mortality = 1) = 1 / (1 + exp(-(1.8999 - 0.1166 × PNI + 0.3269 × Lactate)))
 ---
 
 **Copyright © 2026 Guanjie Chen. All rights reserved.**
+
