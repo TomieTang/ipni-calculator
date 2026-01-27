@@ -37,6 +37,7 @@
             font-weight: 600;
             color: #555;
             margin-bottom: 8px;
+            display: block;
         }
         .input-unit {
             color: #888;
@@ -45,6 +46,7 @@
             margin-left: 5px;
         }
         .input-group-custom input {
+            width: 100%;
             border-radius: 8px;
             border: 2px solid #e0e0e0;
             padding: 12px;
@@ -85,28 +87,28 @@
         }
         .results-container {
             margin-top: 30px;
-            padding: 25px;
+            padding: 12px;
             background: #f8f9fa;
             border-radius: 10px;
-            display: none;
-        }
-        .results-container.show {
             display: block;
         }
         .result-item {
-            margin-bottom: 20px;
-            padding: 15px;
+            margin-bottom: 8px;
+            padding: 8px 12px;
             background: white;
             border-radius: 8px;
             border-left: 4px solid #667eea;
         }
+        .result-item:last-child {
+            margin-bottom: 0;
+        }
         .result-label {
-            font-size: 14px;
+            font-size: 13px;
             color: #666;
-            margin-bottom: 5px;
+            margin-bottom: 2px;
         }
         .result-value {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
             color: #333;
         }
@@ -163,7 +165,7 @@
 
         <!-- Results Display Area -->
         <div class="results-container" id="results-container">
-            <h4 style="margin-bottom: 20px; color: #333;">Results</h4>
+            <h4 style="margin-bottom: 10px; color: #333; font-size: 16px;">Results</h4>
             
             <div class="result-item">
                 <div class="result-label">LPNI Score</div>
@@ -176,7 +178,7 @@
             </div>
 
             <div class="result-item">
-                <div class="result-label">P(mortality = 1)</div>
+                <div class="result-label">Mortality Risk</div>
                 <div class="result-value mortality" id="mortality-prob">-</div>
             </div>
         </div>
@@ -196,9 +198,8 @@
          * Calculate Malnutrition status and mortality risk
          */
         function calculate() {
-            // Hide previous error alerts and results
+            // Hide previous error alerts
             document.getElementById('error-alert').style.display = 'none';
-            document.getElementById('results-container').classList.remove('show');
             
             // Clear previous error states
             clearErrors();
@@ -242,9 +243,6 @@
             document.getElementById('lpni-score').textContent = lpni.toFixed(2);
             document.getElementById('malnutrition').textContent = malnutrition;
             document.getElementById('mortality-prob').textContent = (mortalityProb * 100).toFixed(2) + '%';
-            
-            // Show results container
-            document.getElementById('results-container').classList.add('show');
         }
 
         /**
@@ -257,8 +255,12 @@
             document.getElementById('lymphocyte').value = '';
             document.getElementById('lactate').value = '';
             
-            // Hide results and error alerts
-            document.getElementById('results-container').classList.remove('show');
+            // Reset results display
+            document.getElementById('lpni-score').textContent = '-';
+            document.getElementById('malnutrition').textContent = '-';
+            document.getElementById('mortality-prob').textContent = '-';
+            
+            // Hide error alerts
             document.getElementById('error-alert').style.display = 'none';
             
             // Clear error states
